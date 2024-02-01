@@ -1,22 +1,24 @@
 import sys
+import sys
 import pandas as pd
 import pm4py
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import SVC
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-def plot_confusion_matrix(y_true, y_pred, class_names):
+def plot_confusion_matrix(y_true, y_pred, class_names, model_name):
     matrix = confusion_matrix(y_true, y_pred)
     plt.figure(figsize=(10, 7))
     sns.heatmap(matrix, annot=True, fmt='g', xticklabels=class_names, yticklabels=class_names)
     plt.xlabel('Predicted')
     plt.ylabel('True')
-    plt.show()
+    plt.title(f'{model_name} Confusion Matrix')
+    plt.savefig(f'plot.png')
 
 def process_xes_file(file_path):
     log = xes_importer.apply(file_path)
@@ -68,21 +70,7 @@ def process_xes_file(file_path):
     rf_predictions = rf_classifier.predict(X_test)
     print("\n=== Random Forest Classifier Report ===")
     print(classification_report(y_test, rf_predictions, target_names=event_label_encoder.classes_, zero_division=0))
-
-    # Decision Tree Classifier
-    dt_classifier = DecisionTreeClassifier()
-    dt_classifier.fit(X_train, y_train)
-    dt_predictions = dt_classifier.predict(X_test)
-    print("\n=== Decision Tree Classifier Report ===")
-    print(classification_report(y_test, dt_predictions, target_names=event_label_encoder.classes_, zero_division=0))
-
-    # Support Vector Classifier
-    svm_classifier = SVC()
-    svm_classifier.fit(X_train, y_train)
-    svm_predictions = svm_classifier.predict(X_test)
-    print("\n=== Support Vector Classifier Report ===")
-    print(classification_report(y_test, svm_predictions, target_names=event_label_encoder.classes_, zero_division=0))
-    plot_confusion_matrix(y_test, rf_predictions, event_label_encoder.classes_)
+    plot_confusion_matrix(y_test, rf_predictions, event_label_encoder.classes_, 'Random_Forest')
 
 
 if __name__ == "__main__":

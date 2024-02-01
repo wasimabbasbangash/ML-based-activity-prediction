@@ -12,6 +12,15 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
 import numpy as np
 
+def plot_confusion_matrix(y_true, y_pred, class_names, model_name):
+    matrix = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(10, 7))
+    sns.heatmap(matrix, annot=True, fmt='g', xticklabels=class_names, yticklabels=class_names)
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title(f'{model_name} Confusion Matrix')
+    plt.savefig(f'plot.png')
+
 def process_xes_file(file_path):
     log = xes_importer.apply(file_path)
 
@@ -69,7 +78,8 @@ def process_xes_file(file_path):
     ngram_predictions = ngram_model.predict(X_test_ngram)
 
     print("=== N-gram Model Classification Report ===")
-    print(classification_report(y_test_ngram, ngram_predictions, target_names=event_label_encoder.classes_ ,zero_division=0))
+    print(classification_report(y_test_ngram, ngram_predictions, target_names=event_label_encoder.classes_ ,zero_division=0))    
+    plot_confusion_matrix(y_test, rf_predictions, event_label_encoder.classes_, 'Random_Forest')
 
     # Displaying the original and predicted activities as strings
     for i in range(len(y_test_ngram)):
